@@ -53,3 +53,10 @@ mcp-server-time
 mcp-server-git
 pytest
 pytest-asyncio
+# Bundled local LLM: llama.cpp with an OpenAI-compatible HTTP server.
+# Lets the HF Space serve Qwen2.5-3B-Instruct (or any GGUF) on CPU without
+# any external API. Wired in via docker/entrypoint.sh when
+# ODYSSEUS_LOCAL_LLM=1 — keeps the host install path unchanged.
+# The [server] extra pulls in fastapi/uvicorn/sse-starlette deps for the
+# llama-cpp-python OpenAI-compatible server (`python -m llama_cpp.server`).
+llama-cpp-python[server]>=0.3.2

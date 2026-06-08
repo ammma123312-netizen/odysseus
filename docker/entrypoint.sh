@@ -115,6 +115,23 @@ if [ -n "$HF_TOKEN" ] && [ -n "$PERSIST_REPO_ID" ]; then
     gosu "$PUID:$PGID" python /app/scripts/hf_persistence.py watch &
 fi
 
+# Bundled local LLM (HF Spaces / any CPU-only deploy): download a small
+# GGUF on first run and serve it via llama-cpp-python's OpenAI-compatible
+# HTTP server on 127.0.0.1:8080. Lets the Space answer queries without
+# any external API key. Controlled by ODYSSEUS_LOCAL_LLM=1 — off by
+# default so vanilla `docker compose up` behavior is unchanged.
+#
+# Runs as the non-root app user so the downloaded model file (and the HF
+# cache dir under $MODELS_DIR) inherit ownership consistent with the rest
+# of /app, and the persistence watcher above can include $MODELS_DIR in
+# its snapshot if PERSIST_REPO_ID's dataset is set up for it.
+if [ "${ODYSSEUS_LOCAL_LLM:-0}" = "1" ]; then
+    echo "[entrypoint] starting bundled local LLM server (default: Qwen2.5-3B-Instruct GGUF)..."
+    mkdir -p "${MODELS_DIR:-/app/models}"
+    chown -R "$PUID:$PGID" "${MODELS_DIR:-/app/models}" 2>/dev/null || true
+    gosu "$PUID:$PGID" /app/scripts/local_llm/serve.sh &
+fi
+
 # Drop root and run the actual app. `gosu` is preferred over `su` /
 # `sudo` because it cleans up the process tree (no extra shell layer)
 # so signals (SIGTERM from `docker stop`) reach uvicorn directly.

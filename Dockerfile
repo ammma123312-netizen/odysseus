@@ -48,6 +48,15 @@ COPY . .
 # Create data directory (mount a volume here for persistence)
 RUN mkdir -p data logs services/cache/search
 
+# Pre-create the bundled-LLM cache directory. The actual GGUF download
+# happens at runtime in scripts/local_llm/serve.sh (gated by
+# ODYSSEUS_LOCAL_LLM=1) so the image stays slim and we don't bake a
+# multi-GB model layer into every build. On HF Spaces the same
+# persistence watcher that snapshots /app/data can also be pointed at
+# this dir if you want the GGUF to survive Space restarts without
+# re-downloading.
+RUN mkdir -p /app/models
+
 # Entrypoint that drops to PUID/PGID (default 1000:1000) and repairs
 # ownership on the bind-mounted /app/data and /app/logs. Without this,
 # the container runs as root and writes root-owned files into host
