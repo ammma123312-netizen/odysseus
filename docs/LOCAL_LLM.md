@@ -13,7 +13,7 @@ with `ODYSSEUS_LOCAL_LLM=1`.
   experience.
 - The local model speaks the OpenAI `/v1/chat/completions` protocol, so
   Odysseus' existing model discovery picks it up automatically — just
-  point `LLM_HOSTS` at `localhost:8080`.
+  point `LLM_HOSTS` at `localhost:8001`.
 
 ## Defaults
 
@@ -21,7 +21,7 @@ with `ODYSSEUS_LOCAL_LLM=1`.
 |--------|-------|-----|
 | Model repo | `Qwen/Qwen2.5-3B-Instruct-GGUF` | Strong 3B; Apache 2.0; fluent Arabic + English |
 | File | `qwen2.5-3b-instruct-q4_k_m.gguf` | ~2 GB on disk, ~4 GB RAM at runtime |
-| Port | `8080` (bound to `127.0.0.1`) | Internal only — public traffic still goes through Odysseus on `:7000` |
+| Port | `8001` (bound to `127.0.0.1`) | Internal only — public traffic still goes through Odysseus on `:7000` |
 | Context | `4096` tokens | Safe for cpu-basic; raise if you have headroom |
 | Threads | `min(nproc, 4)` | Leaves CPU for uvicorn |
 
@@ -35,7 +35,7 @@ Override any of them via env vars (see `scripts/local_llm/serve.sh`).
    | Key | Value |
    |-----|-------|
    | `ODYSSEUS_LOCAL_LLM` | `1` |
-   | `LLM_HOSTS` | `localhost:8080` |
+   | `LLM_HOSTS` | `localhost:8001` |
 
 3. Restart the Space (`Settings → Factory rebuild` if the previous image
    doesn't have `llama-cpp-python` yet — the first build after enabling
@@ -45,7 +45,7 @@ Override any of them via env vars (see `scripts/local_llm/serve.sh`).
    ```
    [entrypoint] starting bundled local LLM server (default: Qwen2.5-3B-Instruct GGUF)...
    [local-llm] downloading Qwen/Qwen2.5-3B-Instruct-GGUF / qwen2.5-3b-instruct-q4_k_m.gguf -> /app/models/...
-   [local-llm] launching llama-cpp-python OpenAI server on :8080
+   [local-llm] launching llama-cpp-python OpenAI server on :8001
    ```
 
 ## Stronger models via free external APIs (recommended fallback)

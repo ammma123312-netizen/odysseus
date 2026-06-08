@@ -3,13 +3,13 @@
 #
 # Downloads a small open-source GGUF model on first run, then launches
 # llama-cpp-python's OpenAI-compatible HTTP server on $ODYSSEUS_LOCAL_LLM_PORT
-# (default 8080). Odysseus then talks to it as a normal OpenAI endpoint.
+# (default 8001). Odysseus then talks to it as a normal OpenAI endpoint.
 #
 # Environment:
 #   ODYSSEUS_LOCAL_LLM        1 to enable (default off — outside HF Spaces)
 #   LOCAL_LLM_REPO            HF repo containing the GGUF (default Qwen2.5-3B)
 #   LOCAL_LLM_FILE            filename inside the repo (default q4_k_m)
-#   ODYSSEUS_LOCAL_LLM_PORT   port to bind on localhost (default 8080)
+#   ODYSSEUS_LOCAL_LLM_PORT   port to bind on localhost (default 8001)
 #   ODYSSEUS_LOCAL_LLM_CTX    context window in tokens (default 4096)
 #   ODYSSEUS_LOCAL_LLM_THREADS CPU threads (default: all)
 #   MODELS_DIR                cache dir for downloaded GGUFs (default /app/models)
@@ -28,7 +28,7 @@ fi
 
 REPO="${LOCAL_LLM_REPO:-Qwen/Qwen2.5-3B-Instruct-GGUF}"
 FILE="${LOCAL_LLM_FILE:-qwen2.5-3b-instruct-q4_k_m.gguf}"
-PORT="${ODYSSEUS_LOCAL_LLM_PORT:-8080}"
+PORT="${ODYSSEUS_LOCAL_LLM_PORT:-8001}"
 CTX="${ODYSSEUS_LOCAL_LLM_CTX:-4096}"
 MODELS_DIR="${MODELS_DIR:-/app/models}"
 
@@ -70,8 +70,14 @@ echo "[local-llm]   model=$MODEL_PATH  ctx=$CTX  threads=$THREADS"
 # --host 127.0.0.1: do NOT expose externally. Only Odysseus (same
 #   container) talks to it. Public traffic still goes through Odysseus
 #   on $APP_PORT.
+ALIAS="${LOCAL_LLM_ALIAS:-qwen2.5-3b-instruct}"
+
+# --model_alias: stable name returned by /v1/models so Odysseus' model
+#   picker (and the seed_default.py script that pre-selects this model
+#   as the chat default) doesn't have to guess the GGUF filename.
 exec python -m llama_cpp.server \
     --model "$MODEL_PATH" \
+    --model_alias "$ALIAS" \
     --host 127.0.0.1 \
     --port "$PORT" \
     --n_ctx "$CTX" \

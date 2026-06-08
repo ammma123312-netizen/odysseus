@@ -108,6 +108,13 @@ fi
 # || true so a setup failure never prevents the container from starting.
 gosu "$PUID:$PGID" python /app/setup.py || true
 
+# Pre-register the bundled local LLM as the default chat model so the
+# user lands on it the first time they open the UI (no Settings round
+# trip required). Idempotent: only fills empty default_model slots and
+# only inserts the endpoint when it doesn't already exist. No-op when
+# ODYSSEUS_LOCAL_LLM != 1.
+gosu "$PUID:$PGID" python /app/scripts/local_llm/seed_default.py || true
+
 # HF Spaces persistence: launch the periodic-push watcher in the background
 # alongside the main app. Uses PERSIST_INTERVAL (default 300s).
 if [ -n "$HF_TOKEN" ] && [ -n "$PERSIST_REPO_ID" ]; then
@@ -117,7 +124,7 @@ fi
 
 # Bundled local LLM (HF Spaces / any CPU-only deploy): download a small
 # GGUF on first run and serve it via llama-cpp-python's OpenAI-compatible
-# HTTP server on 127.0.0.1:8080. Lets the Space answer queries without
+# HTTP server on 127.0.0.1:8001. Lets the Space answer queries without
 # any external API key. Controlled by ODYSSEUS_LOCAL_LLM=1 — off by
 # default so vanilla `docker compose up` behavior is unchanged.
 #
