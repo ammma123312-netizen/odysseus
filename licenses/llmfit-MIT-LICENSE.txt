@@ -1,6 +1,10 @@
+llmfit — https://github.com/AlexsJones/llmfit
+Adapted in: services/hwfit/, routes/cookbook_*.py, routes/hwfit_routes.py,
+static/js/cookbook*.js, scripts/odysseus-cookbook
+
 MIT License
 
-Copyright (c) 2025 Odysseus Contributors
+Copyright (c) 2026 Alex Jones
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
