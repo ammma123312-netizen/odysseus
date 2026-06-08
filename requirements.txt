@@ -57,6 +57,12 @@ pytest-asyncio
 # Lets the HF Space serve Qwen2.5-3B-Instruct (or any GGUF) on CPU without
 # any external API. Wired in via docker/entrypoint.sh when
 # ODYSSEUS_LOCAL_LLM=1 — keeps the host install path unchanged.
+#
+# Installed from the maintainer's pre-built CPU wheel index (see Dockerfile)
+# so HF Spaces' 2-vCPU cpu-basic tier doesn't have to compile llama.cpp from
+# source (which takes 5-15 min and risks OOM/timeouts during the build).
+# Pinned to a known-good 0.3.x for ABI stability with current GGUF spec.
+#
 # The [server] extra pulls in fastapi/uvicorn/sse-starlette deps for the
 # llama-cpp-python OpenAI-compatible server (`python -m llama_cpp.server`).
-llama-cpp-python[server]>=0.3.2
+llama-cpp-python[server]==0.3.2

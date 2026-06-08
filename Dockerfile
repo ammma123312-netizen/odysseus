@@ -24,9 +24,18 @@ WORKDIR /app
 
 # Install Python deps first (layer cache). Optional extras (PyMuPDF AGPL, etc.)
 # are opt-in so the default image stays MIT-core; see requirements-optional.txt.
+#
+# --extra-index-url points pip at the llama-cpp-python maintainer's pre-built
+# CPU wheel index. Without this, pip falls back to compiling llama.cpp from
+# source via CMake, which takes 5-15 min on the 2-vCPU HF Space cpu-basic
+# tier and can OOM during the link step (16 GB RAM minus everything else the
+# Space is using). The wheel index is the officially documented install path
+# for CPU-only deploys: https://abetlen.github.io/llama-cpp-python/whl/cpu/
 ARG INSTALL_OPTIONAL=false
 COPY requirements.txt requirements-optional.txt ./
-RUN pip install --no-cache-dir -r requirements.txt \
+RUN pip install --no-cache-dir \
+        --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu \
+        -r requirements.txt \
     && if [ "$INSTALL_OPTIONAL" = "true" ]; then pip install --no-cache-dir -r requirements-optional.txt; fi
 
 # Install MCP NPX servers GLOBALLY so they're available to every user
